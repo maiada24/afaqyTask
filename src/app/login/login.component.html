@@ -1,0 +1,24 @@
+<div class="login">
+  
+  <form class="border m-auto col-10 col-md-6" name="loginForm" #loginForm="ngForm" (ngSubmit)="loginForm.valid"
+    novalidate>
+    <fieldset>
+      <h4 class="header border-bottom pt-4 pb-2" translate>Login</h4>
+      <div class="align-self-center" class="d-flex flex-column mt-4">
+        <mat-form-field>
+          <input matInput type="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,5}$" placeholder="{{'Email' | translate}}" name="email" [(ngModel)]="email"
+            required>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="password" name="password" placeholder="{{'Password' | translate}}" [(ngModel)]="password"
+             required>
+        </mat-form-field>
+        <mat-checkbox [(ngModel)]="rememberMe" name="remember"><span class="mr-2"
+            translate>RememberMe</span>
+        </mat-checkbox>
+        <button type="sumbit" (click)="login(loginForm.valid, loginForm.value)"
+          class="btn btn-success align-self-center  mb-4 mt-4 col-6" translate>Login</button>
+      </div>
+    </fieldset>
+  </form>
+</div>
