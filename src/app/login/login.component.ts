@@ -18,11 +18,17 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (localStorage.getItem("rememberMe") === "true" && localStorage.getItem("loginData")) {
-      this.email = JSON.parse(localStorage.getItem("loginData")).email;
-      this.password = JSON.parse(localStorage.getItem("loginData")).password;
-      this.rememberMe = true;
+    if (this.globalvar.loggedIn) {
+      this.router.navigateByUrl('/home');
     }
+    else {
+      if (localStorage.getItem("rememberMe") === "true" && localStorage.getItem("loginData")) {
+        this.email = JSON.parse(localStorage.getItem("loginData")).email;
+        this.password = JSON.parse(localStorage.getItem("loginData")).password;
+        this.rememberMe = true;
+      }
+    }
+
   }
 
   login(isValidData, value) {
