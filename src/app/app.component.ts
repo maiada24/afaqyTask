@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as $ from "jquery";
-import { Router } from '@angular/router';
-import { global } from "../app/globalVars";
+import { AuthenticationService } from '../app/services/authentication.service';
 
 @Component({
   selector: 'app-root',
@@ -11,57 +9,33 @@ import { global } from "../app/globalVars";
 })
 export class AppComponent implements OnInit {
   loggedIn: boolean;
+  Language_Layout: string = "ltr";
 
-  constructor(private router: Router, private translate: TranslateService, private globalvar: global) {
+  constructor(private translate: TranslateService, private authenticationService: AuthenticationService) {}
+
+  ngOnInit() {
     if (!localStorage.getItem("language")) {
       localStorage.setItem("language", "en");
     }
-    translate.setDefaultLang(localStorage.getItem("language"));
+    localStorage.getItem("language") == "en" ? this.Language_Layout = "ltr" : this.Language_Layout = "rtl";
+    this.translate.setDefaultLang(localStorage.getItem("language"));
     this.translate.currentLang = localStorage.getItem("language");
-
-    setTimeout(() => {
-      if (localStorage.getItem("language") === "en") {
-        $("body").removeClass("rtl text-right");
-        $("mat-form-field").removeClass("text-right");
-        $("body").addClass("ltr text-left");
-        $("mat-form-field").addClass("text-left");
-      }
-      else {
-        $("body").removeClass("ltr text-left");
-        $("mat-form-field").removeClass("text-left");
-        $("body").addClass("rtl text-right");
-        $("mat-form-field").addClass("text-right");
-      }
-    }, 0);
-  }
-
-  ngOnInit() {
-    if (localStorage.getItem("loggedIn") === "true") {
-      this.globalvar.loggedIn = true;
-      this.router.navigateByUrl('/home');
+    if (localStorage.getItem("currentUser")) {
+      this.authenticationService.isLoggedIn = true;
     }
   }
+
   switchLanguage() {
     if (this.translate.currentLang === "ar") {
       this.translate.use("en");
-      $("body").removeClass("rtl text-right");
-      $("mat-form-field").removeClass("text-right");
-      $("body").addClass("ltr text-left");
-      $("mat-form-field").addClass("text-left");
       localStorage.setItem("language", "en");
+      this.Language_Layout = "ltr";
     }
     else {
       this.translate.use("ar");
-      $("body").removeClass("ltr text-left");
-      $("mat-form-field").removeClass("text-left");
-      $("body").addClass("rtl text-right");
-      $("mat-form-field").addClass("text-right");
       localStorage.setItem("language", "ar");
+      this.Language_Layout = "rtl";
     }
 
-  }
-  clearLoginData() {
-    localStorage.setItem("loggedIn", "false");
-    this.globalvar.loggedIn = false;
   }
 }

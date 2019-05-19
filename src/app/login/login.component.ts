@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { formatDate } from '@angular/common';
-import { Router } from '@angular/router';
-import { global } from '../globalVars';
+import { Router, ActivatedRoute } from '@angular/router';
+import { AuthenticationService } from '../services/authentication.service';
 
 @Component({
   selector: 'app-login',
@@ -10,31 +10,48 @@ import { global } from '../globalVars';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
-  rememberMe: boolean = false;
-  email: any = "";
-  password: any = "";
+  loginForm: FormGroup;
+  returnUrl: string;
+  error = '';
 
-  constructor(private router: Router, private globalvar: global) {
-  }
+  constructor(
+    private formBuilder: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private authenticationService: AuthenticationService) { }
 
   ngOnInit() {
-    if (localStorage.getItem("rememberMe") === "true" && localStorage.getItem("loginData")) {
-      this.email = JSON.parse(localStorage.getItem("loginData")).email;
-      this.password = JSON.parse(localStorage.getItem("loginData")).password;
-      this.rememberMe = true;
-    }
+    this.loginForm = this.formBuilder.group({
+      email: ['', Validators.required],
+      password: ['', Validators.required],
+      rememberme: ['']
+    });
+
+    // reset login status
+    this.authenticationService.logout();
+    // get return url from route parameters or default to '/'
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  login(isValidData, value) {
-    if (isValidData) {
-      let lastLoginDate = formatDate(new Date(), 'dd-MM-yyyy hh:mm:ss a', 'en-US');
-      localStorage.setItem("lastLoginDate", JSON.stringify(lastLoginDate));
-      localStorage.setItem("loginData", JSON.stringify(value));
-      localStorage.setItem("rememberMe", JSON.stringify(value.remember));
-      localStorage.setItem("loggedIn", "true");
-      this.globalvar.loggedIn = true;
-      this.router.navigateByUrl('/home');
-    }
-  }
+  // convenience getter for easy access to form fields
+  get form() { return this.loginForm.controls; }
 
+  login() {
+    // stop here if form is invalid
+    if (this.loginForm.invalid) {
+      return;
+    }
+
+    this.authenticationService.login(this.form.email.value, this.form.password.value)
+      .pipe()
+      .subscribe(
+        data => {
+          let lastLoginDate = formatDate(new Date(), 'dd-MM-yyyy hh:mm:ss a', 'en-US');
+          localStorage.setItem("lastLoginDate", JSON.stringify(lastLoginDate));
+          this.router.navigate([this.returnUrl]);
+        },
+        error => {
+          this.error = error;
+        });
+  }
 }

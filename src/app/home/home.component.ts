@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { global } from "../globalVars";
 
 @Component({
   selector: 'app-home',
@@ -9,16 +7,10 @@ import { global } from "../globalVars";
 })
 export class HomeComponent implements OnInit {
   lastLoginDate: any;
-  constructor(private router: Router, private globalvar: global) { }
+  constructor() { }
 
   ngOnInit() {
-    if (localStorage.getItem("loggedIn") === "true") {
-      this.lastLoginDate = localStorage.getItem("lastLoginDate");
-      this.globalvar.loggedIn = true;
-    }
-    else {
-      this.router.navigateByUrl('/');
-    }
+    this.lastLoginDate = localStorage.getItem("lastLoginDate");
   }
 
 }
